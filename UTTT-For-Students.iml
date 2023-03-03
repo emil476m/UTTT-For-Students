@@ -7,7 +7,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="de.jensd.fontawesomefx.commons" level="project" />
     <orderEntry type="library" name="de.jensd.fontawesomefx.fontawesome" level="project" />
+    <orderEntry type="library" name="de.jensd.fontawesomefx.materialdesignfont" level="project" />
     <orderEntry type="library" name="jfoenix" level="project" />
   </component>
 </module>
