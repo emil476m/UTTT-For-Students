@@ -4,13 +4,12 @@ import dk.easv.bll.field.IField;
 import dk.easv.bll.game.GameState;
 import dk.easv.bll.game.IGameState;
 import dk.easv.bll.move.IMove;
-import dk.easv.bll.move.Move;
 
 import java.util.*;
 
 public class testBot implements IBot{
     final int moveTimeMs = 1000;
-    private PriorityQueue<WinningMove> winWithMove = new PriorityQueue<>();
+    private List<IMove> winWithMove = new ArrayList<>();
     String botName = "TestBot";
 
     private GameSim createSimulator(IGameState state) {
@@ -53,20 +52,40 @@ public class testBot implements IBot{
                 }
             }
             if (sim.getGameOver() == GameOverState.Win) {
-                Move best = (Move) bestMove;
-                WinningMove move = new WinningMove(best, +1);
-                winWithMove.add(move);
+                winWithMove.add(bestMove);
             }
         }
 
        return checkHowManyWins(winWithMove);
     }
 
-    private IMove checkHowManyWins(PriorityQueue<WinningMove> winWithMove)
+    private IMove checkHowManyWins(List<IMove> winWithMove)
     {
-        PriorityQueue<WinningMove> moves =  winWithMove;
-        winWithMove.clear();
-        return (IMove) moves.peek();
+        List<IMove> moves = winWithMove;
+        HashMap<IMove,Integer> times = new HashMap<>();
+        int max = 0;
+        IMove move = null;
+        for (IMove m: moves)
+        {
+            if(!times.containsKey(m))
+            {
+                times.put(m,1);
+            }
+            else
+            {
+                times.put(m,times.get(m)+1);
+            }
+        }
+        moves.stream().distinct();
+        for (IMove m:moves) {
+            if(times.get(m) > max)
+            {
+                max = times.get(m);
+                move = m;
+            }
+        }
+        moves.clear();
+        return move;
     }
     @Override
     public String getBotName() {
@@ -77,22 +96,6 @@ public class testBot implements IBot{
         Active,
         Win,
         Tie
-    }
-
-    public class WinningMove implements Comparable<Integer>
-    {
-        private Move move;
-        int wins = 0;
-
-        public WinningMove(Move move, int wins)
-        {
-            this.wins = wins;
-            this.move = move;
-        }
-        @Override
-        public int compareTo(Integer o) {
-            return wins;
-        }
     }
 
     public class Move implements IMove {
