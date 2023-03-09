@@ -7,18 +7,9 @@ import dk.easv.bll.move.IMove;
 
 import java.util.*;
 
-public class testBot implements IBot{
+public class SpooderBOT implements IBot{
     private int xMod = 0;
     private int yMod = 0;
-
-    private int winV0 = 0;
-    private int winV1 = 0;
-    private int winV2 = 0;
-    private int winH0 = 0;
-    private int winH1 = 0;
-    private int winH2 = 0;
-    private int winS0 = 0;
-    private int winS1 = 0;
 
     private IMove move00 = null;
     private IMove move01 = null;
@@ -29,9 +20,14 @@ public class testBot implements IBot{
     private IMove move20 = null;
     private IMove move21 = null;
     private IMove move22 = null;
+
+    private List<IMove> blockMoves = new ArrayList<>();
+    private List<IMove> spooderMoves = new ArrayList<>();
+
+    private int playerID = -1;
     final int moveTimeMs = 1000;
     private List<IMove> winWithMove = new ArrayList<>();
-    String botName = "TestBot";
+    String botName = "Spooder BOT";
 
     private GameSim createSimulator(IGameState state) {
         GameSim simulator = new GameSim(new GameState());
@@ -112,7 +108,6 @@ public class testBot implements IBot{
         IMove bestMove = checkLegalListMove(state);
         moves.clear();
         if (bestMove != null){
-            System.out.println(bestMove.toString() + " this is best move");
             return bestMove;
         }
         else {
@@ -124,14 +119,16 @@ public class testBot implements IBot{
 
 
         List<IMove> moves = state.getField().getAvailableMoves();
-        List<IMove> blockOrWin = getWinMove(state);
-        /*if (blockOrWin != null){
-            System.out.println(blockOrWin + ""+'\n');
-            return blockOrWin.get(0);
-        }*/
-        System.out.println(blockOrWin + ""+'\n');
-        if (blockOrWin != null){
+        getWinMove(state);
+        List<IMove> blockOrWin = null;
+        if (!spooderMoves.isEmpty()){
+            blockOrWin = spooderMoves;
+        }
+        else {
+            blockOrWin = blockMoves;
+        }
 
+        if (blockOrWin != null){
             for (IMove move:moves){
                 for (IMove m2 :blockOrWin){
                     if (move.getX() == m2.getX() && move.getY() == m2.getY()){
@@ -142,6 +139,15 @@ public class testBot implements IBot{
         }
         return null;
     }
+
+    private void setPlayerID(IGameState state){
+        if ((state.getMoveNumber() % 2) == 0 || state.getMoveNumber() == 0)
+            playerID = 0;
+        else
+            playerID = 1;
+    }
+
+
     @Override
     public String getBotName() {
         return botName;
@@ -396,16 +402,6 @@ public class testBot implements IBot{
         }
     }
 
-    private void resetVar(){
-        winV0 = 0;
-        winV1 = 0;
-        winV2 = 0;
-        winH0 = 0;
-        winH1 = 0;
-        winH2 = 0;
-        winS0 = 0;
-        winS1 = 0;
-    }
 
     private void setAllMoves(){
         move00 = new Move(0 + xMod,0 + yMod);
@@ -417,106 +413,89 @@ public class testBot implements IBot{
         move20 = new Move(2 + xMod,0 + yMod);
         move21 = new Move(2 + xMod,1 + yMod);
         move22 = new Move(2 + xMod,2 + yMod);
+
+
     }
 
 
-    private boolean checkPlayerMoveSame(IGameState state, IMove move1, IMove move2){
+    private void checkPlayerMoveSame(IGameState state, IMove move1, IMove move2, IMove move3){
         if (state.getField().getPlayerId(move1.getX(),move1.getY()).equals(state.getField().getPlayerId(move2.getX(),move2.getY())) ) {
             if (!state.getField().getPlayerId(move1.getX(), move1.getY()).equals(".") && !(state.getField().getPlayerId(move1.getX(), move1.getY()).equals("-1"))){
-                return true;
+                if (state.getField().getPlayerId(move1.getX(),move1.getY()).equals(playerID)){
+                    spooderMoves.add(move3);
+                }
+                else {
+                    blockMoves.add(move3);
+                }
             }
         }
-        return false;
     }
 
     private List<IMove> getWinMove(IGameState state){
         List<IMove> winMoves = new ArrayList<>();
         List<IMove> moves =  state.getField().getAvailableMoves();
+        setPlayerID(state);
         getMod(moves);
         setAllMoves();
 
 
-        if (checkPlayerMoveSame(state, move01, move02))
-            winMoves.add(move00);
-        System.out.println(state.getField().getPlayerId(0,0) + " cords");
-        System.out.println(checkPlayerMoveSame(state, move01, move02) + " stuff");
+        checkPlayerMoveSame(state, move01, move02, move00);
 
-        if (checkPlayerMoveSame(state, move00, move02))
-            winMoves.add(move01);
+        checkPlayerMoveSame(state, move00, move02, move01);
 
-        if (checkPlayerMoveSame(state, move00, move01))
-            winMoves.add(move02);
+        checkPlayerMoveSame(state, move00, move01, move02);
 
 
 
-        if (checkPlayerMoveSame(state, move11, move12))
-            winMoves.add(move10);
+        checkPlayerMoveSame(state, move11, move12, move10);
 
-        if (checkPlayerMoveSame(state, move12, move10))
-            winMoves.add(move11);
-
-        if (checkPlayerMoveSame(state, move11, move10))
-            winMoves.add(move12);
+        checkPlayerMoveSame(state, move12, move10, move11);
 
 
-        if (checkPlayerMoveSame(state, move21, move22))
-            winMoves.add(move20);
-
-        if (checkPlayerMoveSame(state, move20, move22))
-            winMoves.add(move21);
-
-        if (checkPlayerMoveSame(state, move21, move20))
-            winMoves.add(move22);
+        checkPlayerMoveSame(state, move11, move10, move12);
 
 
-        if (checkPlayerMoveSame(state, move10, move20))
-            winMoves.add(move00);
+        checkPlayerMoveSame(state, move21, move22, move20);
 
-        if (checkPlayerMoveSame(state, move00, move20))
-            winMoves.add(move10);
+        checkPlayerMoveSame(state, move20, move22, move21);
 
-        if (checkPlayerMoveSame(state, move10, move00))
-            winMoves.add(move20);
+        checkPlayerMoveSame(state, move21, move20, move22);
 
 
-        if (checkPlayerMoveSame(state, move11, move21))
-            winMoves.add(move01);
+        checkPlayerMoveSame(state, move10, move20, move00);
 
-        if (checkPlayerMoveSame(state, move01, move21))
-            winMoves.add(move11);
+        checkPlayerMoveSame(state, move00, move20, move10);
 
-        if (checkPlayerMoveSame(state, move11, move01))
-            winMoves.add(move21);
+        checkPlayerMoveSame(state, move10, move00, move20);
 
 
-        if (checkPlayerMoveSame(state, move12, move22))
-            winMoves.add(move02);
+        checkPlayerMoveSame(state, move11, move21, move01);
 
-        if (checkPlayerMoveSame(state, move22, move02))
-            winMoves.add(move12);
+        checkPlayerMoveSame(state, move01, move21, move11);
 
-        if (checkPlayerMoveSame(state, move12, move02))
-            winMoves.add(move22);
+        checkPlayerMoveSame(state, move11, move01, move21);
 
 
-        if (checkPlayerMoveSame(state, move11, move22))
-            winMoves.add(move00);
+        checkPlayerMoveSame(state, move12, move22, move02);
 
-        if (checkPlayerMoveSame(state, move00, move22))
-            winMoves.add(move11);
+        checkPlayerMoveSame(state, move22, move02, move12);
 
-        if (checkPlayerMoveSame(state, move11, move00))
-            winMoves.add(move22);
+        checkPlayerMoveSame(state, move12, move02, move22);
+
+
+        checkPlayerMoveSame(state, move11, move22, move00);
+
+        checkPlayerMoveSame(state, move00, move22, move11);
+
+        checkPlayerMoveSame(state, move11, move00, move22);
 
 
 
-        if (checkPlayerMoveSame(state, move11, move02))
-            winMoves.add(move20);
-        if (checkPlayerMoveSame(state, move02, move20))
-            winMoves.add(move11);
+        checkPlayerMoveSame(state, move11, move02, move20);
 
-        if (checkPlayerMoveSame(state, move11, move20))
-            winMoves.add(move02);
+        checkPlayerMoveSame(state, move02, move20, move11);
+
+        checkPlayerMoveSame(state, move11, move20, move02);
 
         winMoves.stream().distinct();
         if (!winMoves.isEmpty())
