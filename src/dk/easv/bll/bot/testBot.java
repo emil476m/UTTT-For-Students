@@ -352,12 +352,15 @@ public class testBot implements IBot{
     private void getMod(List<IMove> moves){
         IMove move = moves.get(0);
         if (move.getX() <=2){
+            xMod = 0;
             if(move.getY() <= 5 && move.getY()>2){
                     yMod = 3;
             }
             else if(move.getY() > 5){
                     yMod = 6;
             }
+            else
+                yMod = 0;
         }
         else if (move.getX() <=5 && move.getX() >2){
             xMod = 3;
@@ -367,6 +370,8 @@ public class testBot implements IBot{
             else if(move.getY() > 5){
                 yMod = 6;
             }
+            else
+                yMod = 0;
         }
         else{
             xMod = 6;
@@ -376,6 +381,8 @@ public class testBot implements IBot{
             else if(move.getY() > 5){
                 yMod = 6;
             }
+            else
+                yMod = 0;
         }
     }
 
