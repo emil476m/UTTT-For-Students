@@ -12,52 +12,49 @@ public class TestBOTEmil implements IBot{
     private static final String BOTNAME="Based Bot";
     private Random rand = new Random();
 
+    private int xMod = 0;
+    private int yMod = 0;
+
+    private int winV0 = 0;
+    private int winV1 = 0;
+    private int winV2 = 0;
+    private int winH0 = 0;
+    private int winH1 = 0;
+    private int winH2 = 0;
+    private int winS0 = 0;
+    private int winS1 = 0;
+
+    private IMove move00 = null;
+    private IMove move01 = null;
+    private IMove move02 = null;
+    private IMove move10 = null;
+    private IMove move11 = null;
+    private IMove move12 = null;
+    private IMove move20 = null;
+    private IMove move21 = null;
+    private IMove move22 = null;
+
     @Override
     public IMove doMove(IGameState state) {
-        //state.getField().getMacroboard().
-        List<IMove> moves = state.getField().getAvailableMoves();
-        IMove moveToTie = testNearWin(state);
+
+        //List<IMove> moves = state.getField().getAvailableMoves();
+
+        testNearWin(state);
+        List<IMove> moveToTie = getWinMove();
+
         //System.out.println("The not random Move " + moveToTie);
-        if (moveToTie != null) {
-            //System.out.println("Not Random");
+        /*if (moveToTie != null) {
             return moveToTie;
         }
         else {
             if (moves.size() > 0) {
-                //System.out.println("Random Move");
-                return moves.get(rand.nextInt(moves.size())); /* get random move from available moves */
+                return moves.get(rand.nextInt(moves.size()));
             }
-        }
+        }*/
         return null;
     }
 
-
-    private IMove testNearWin(IGameState state){
-        List<IMove> moves =  state.getField().getAvailableMoves();
-        //System.out.println("All available Moves: " + moves.toString());
-
-        int winV0 = 0;
-        int winV1 = 0;
-        int winV2 = 0;
-        int winH0 = 0;
-        int winH1 = 0;
-        int winH2 = 0;
-        int winS0 = 0;
-        int winS1 = 0;
-
-        int xMod = 0;
-        int yMod = 0;
-
-        IMove move00 = null;
-        IMove move01 = null;
-        IMove move02 = null;
-        IMove move10 = null;
-        IMove move11 = null;
-        IMove move12 = null;
-        IMove move20 = null;
-        IMove move21 = null;
-        IMove move22 = null;
-
+    private void getMod(List<IMove> moves){
         for (IMove move: moves){
             if (move.getX() <=2){
                 if(move.getY() <= 5 && move.getY()>2){
@@ -86,9 +83,33 @@ public class TestBOTEmil implements IBot{
                 }
             }
         }
+    }
 
+    private void resetVar(){
+        int winV0 = 0;
+        int winV1 = 0;
+        int winV2 = 0;
+        int winH0 = 0;
+        int winH1 = 0;
+        int winH2 = 0;
+        int winS0 = 0;
+        int winS1 = 0;
 
+        IMove move00 = null;
+        IMove move01 = null;
+        IMove move02 = null;
+        IMove move10 = null;
+        IMove move11 = null;
+        IMove move12 = null;
+        IMove move20 = null;
+        IMove move21 = null;
+        IMove move22 = null;
+    }
 
+    private void testNearWin(IGameState state){
+        List<IMove> moves =  state.getField().getAvailableMoves();
+        resetVar();
+        getMod(moves);
 
         for (IMove move: moves){
             if (move.getX() == 0+xMod && move.getY() == 0+yMod){
@@ -143,76 +164,75 @@ public class TestBOTEmil implements IBot{
                 move22 = move;
             }
         }
+    }
 
+    private List<IMove> getWinMove(){
+        List<IMove> winMoves = null;
         if(winV0 == 1){
             if (move00 != null)
-                return  move00;
+                winMoves.add(move00);
             if (move01 != null)
-                return  move01;
+                winMoves.add(move01);
             if (move02 != null)
-                return  move02;
+                winMoves.add(move02);
         }
         if(winV1 == 1){
             if (move10 != null)
-                return  move10;
+                winMoves.add(move10);
             if (move11 != null)
-                return  move11;
+                winMoves.add(move11);
             if (move12 != null)
-                return  move12;
+                winMoves.add(move12);
         }
         if(winV2 == 1){
             if (move20 != null)
-                return  move20;
+                winMoves.add(move20);
             if (move21 != null)
-                return  move21;
+                winMoves.add(move21);
             if (move22 != null)
-                return  move22;
+                winMoves.add(move22);
         }
         if(winH0 == 1){
             if (move00 != null)
-                return  move00;
+                winMoves.add(move00);
             if (move10 != null)
-                return  move10;
+                winMoves.add(move10);
             if (move20 != null)
-                return  move20;
+                winMoves.add(move20);
         }
         if(winH1 == 1){
             if (move01 != null)
-                return  move01;
+                winMoves.add(move01);
             if (move11 != null)
-                return  move11;
+                winMoves.add(move11);
             if (move21 != null)
-                return  move21;
+                winMoves.add(move21);
         }
         if(winH2 == 1){
             if (move02 != null)
-                return  move02;
+                winMoves.add(move02);
             if (move12 != null)
-                return  move12;
+                winMoves.add(move12);
             if (move22 != null)
-                return  move22;
+                winMoves.add(move22);
         }
         if(winS0 == 1){
             if (move00 != null)
-                return  move00;
+                winMoves.add(move00);
             if (move11 != null)
-                return  move11;
+                winMoves.add(move11);
             if (move22 != null)
-                return  move22;
+                winMoves.add(move22);
         }
         if(winS1 == 1){
             if (move20 != null)
-                return  move20;
+                winMoves.add(move20);
             if (move11 != null)
-                return  move11;
+                winMoves.add(move11);
             if (move02 != null)
-                return  move02;
+                winMoves.add(move02);
         }
-
-
-        //System.out.println("winV0: " + winV0 + " winV1 " +winV1 + " winV2 " + winV2 + " winH0 " + winH0 + " winH1 " +
-                //winH1 + " winH2 " + winH2 + " winS0 " + winS0 + " winS1 "+ winS1);
-        return null;
+        return winMoves;
     }
 
 
